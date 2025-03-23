@@ -1,6 +1,6 @@
 "use server";
 
-import { TransactionsResponse } from "./types";
+import { Transaction, TransactionsResponse } from "./types";
 
 const API_URL = process.env.API_URL;
 
@@ -26,4 +26,21 @@ export async function fetchTransactions({
   }
 
   return result.data;
+}
+
+export async function createTransaction(transaction: Partial<Transaction>) {
+  console.log(transaction);
+  const response = await fetch(`${API_URL}/transactions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(transaction),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create transaction: ${response.statusText}`);
+  }
+
+  return await response.json();
 }

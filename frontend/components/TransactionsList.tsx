@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransactions } from "@/lib/hooks/use-transactions";
+import { useTransactions } from "@/lib/hooks/useTransactions";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -36,6 +36,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "./ui/pagination";
+import { CreateTransactionDialog } from "./CreateTransactionDialog";
 
 export function TransactionsList() {
   const {
@@ -148,17 +149,20 @@ export function TransactionsList() {
             View your recent transactions
           </CardDescription>
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => refetch()}
-          disabled={isFetching}
-        >
-          <RefreshCw
-            className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-          />
-          <span className="sr-only">Refresh transactions</span>
-        </Button>
+        <div className="flex flex-row gap-2">
+          <CreateTransactionDialog />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+            />
+            <span className="sr-only">Refresh transactions</span>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <TooltipProvider>
