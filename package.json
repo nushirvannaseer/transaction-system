@@ -1,0 +1,25 @@
+{
+  "name": "dal-test",
+  "version": "1.0.0",
+  "description": "Transaction Logging System Monorepo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "frontend:dev": "pnpm --filter frontend run dev",
+    "backend:dev": "pnpm --filter backend run dev",
+    "dev": "concurrently \"pnpm run frontend:dev\" \"pnpm run backend:dev\"",
+    "install:all": "pnpm install",
+    "clean": "rimraf node_modules **/node_modules"
+  },
+  "keywords": [
+    "monorepo",
+    "transaction",
+    "logging"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "rimraf": "^5.0.1"
+  }
+}
