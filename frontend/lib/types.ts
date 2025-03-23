@@ -10,5 +10,11 @@ export interface Transaction {
 export interface TransactionsResponse {
   status: string;
   message: string;
-  data: Transaction[];
+  data: {
+    transactions: Transaction[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }

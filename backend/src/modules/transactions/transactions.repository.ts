@@ -12,12 +12,24 @@ export class TransactionsRepository {
     });
   }
 
-  async findAll(): Promise<Transaction[]> {
-    return prismaService.getClient().transaction.findMany({
-      orderBy: {
-        timestamp: "desc",
-      },
-    });
+  async findAll(
+    page = 1,
+    limit = 10
+  ): Promise<{ transactions: Transaction[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const [transactions, total] = await Promise.all([
+      prismaService.getClient().transaction.findMany({
+        orderBy: {
+          timestamp: "desc",
+        },
+        skip,
+        take: limit,
+      }),
+      prismaService.getClient().transaction.count(),
+    ]);
+
+    return { transactions, total };
   }
 
   async findById(id: number): Promise<Transaction | null> {

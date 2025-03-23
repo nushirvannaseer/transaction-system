@@ -14,7 +14,7 @@ export default function Home() {
       </main>
 
       <footer className="mt-12 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Transaction Viewer</p>
+        <p>Transaction Viewer</p>
       </footer>
     </div>
   );

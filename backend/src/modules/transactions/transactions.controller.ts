@@ -19,8 +19,18 @@ export class TransactionsController {
 
   async getAllTransactions(req: Request, res: Response): Promise<void> {
     try {
-      const transactions = await transactionsService.getAllTransactions();
-      sendSuccess(res, transactions, "Transactions fetched successfully");
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 10;
+
+      // Ensure valid pagination values
+      const validatedPage = page > 0 ? page : 1;
+      const validatedLimit = limit > 0 && limit <= 100 ? limit : 10;
+
+      const result = await transactionsService.getAllTransactions(
+        validatedPage,
+        validatedLimit
+      );
+      sendSuccess(res, result, "Transactions fetched successfully");
     } catch (error) {
       sendError(
         res,

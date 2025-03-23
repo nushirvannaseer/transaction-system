@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "./ui/card";
@@ -26,10 +27,27 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./ui/pagination";
 
 export function TransactionsList() {
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    useTransactions();
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+    page,
+    setPage,
+  } = useTransactions();
 
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -45,6 +63,80 @@ export function TransactionsList() {
 
   const formatExactTimestamp = (timestamp: string) => {
     return format(new Date(timestamp), "PPpp"); // 'Mar 15, 2023, 3:25 PM'
+  };
+
+  // Generate pagination items
+  const renderPaginationItems = () => {
+    if (!data) return null;
+
+    const { totalPages } = data;
+    const maxVisiblePages = 5;
+    const items = [];
+
+    // Logic for determining which page numbers to show
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // First page
+    if (startPage > 1) {
+      items.push(
+        <PaginationItem key="first">
+          <PaginationLink onClick={() => setPage(1)} isActive={page === 1}>
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+
+      // Add ellipsis if there's a gap
+      if (startPage > 2) {
+        items.push(
+          <PaginationItem key="ellipsis-1">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink onClick={() => setPage(i)} isActive={page === i}>
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    // Last page
+    if (endPage < totalPages) {
+      // Add ellipsis if there's a gap
+      if (endPage < totalPages - 1) {
+        items.push(
+          <PaginationItem key="ellipsis-2">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      items.push(
+        <PaginationItem key="last">
+          <PaginationLink
+            onClick={() => setPage(totalPages)}
+            isActive={page === totalPages}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
   };
 
   return (
@@ -81,7 +173,7 @@ export function TransactionsList() {
             <div className="text-center py-6 text-destructive">
               <p>Error loading transactions: {(error as Error).message}</p>
             </div>
-          ) : !data?.length ? (
+          ) : !data?.transactions?.length ? (
             <div className="text-center py-6 text-muted-foreground">
               <p>No transactions found</p>
             </div>
@@ -97,7 +189,7 @@ export function TransactionsList() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.map((transaction) => (
+                  {data.transactions.map((transaction) => (
                     <TableRow key={transaction.id}>
                       <TableCell>{transaction.id}</TableCell>
                       <TableCell
@@ -141,6 +233,38 @@ export function TransactionsList() {
           )}
         </TooltipProvider>
       </CardContent>
+      {data && data.totalPages > 1 && (
+        <CardFooter className="flex justify-between">
+          <div className="text-sm text-muted-foreground">
+            Showing {data.transactions.length} of {data.total} transactions
+          </div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  aria-disabled={page === 1}
+                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+
+              {renderPaginationItems()}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage(Math.min(data.totalPages, page + 1))}
+                  aria-disabled={page === data.totalPages}
+                  className={
+                    page === data.totalPages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </CardFooter>
+      )}
     </Card>
   );
 }
